@@ -66,10 +66,16 @@ func (s *Server) Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if s.secret != "" {
-		headerSig := r.Header.Get("X-Hub-Signature")
-		sig := hmacSig(s.secret, []byte(strings.TrimSpace(string(b))))
-		expectedSig := fmt.Sprintf("sha1=%x", sig)
-		if headerSig != expectedSig {
+		// headerSig := r.Header.Get("X-Hub-Signature")
+		// sig := hmacSig(s.secret, []byte(strings.TrimSpace(string(b))))
+		// expectedSig := fmt.Sprintf("sha1=%x", sig)
+		// if headerSig != expectedSig {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	fmt.Fprintf(w, http.StatusText(http.StatusUnauthorized))
+		// 	return
+		// }
+		secret := r.Header.Get("X-Secret")
+		if secret != s.secret {
 			w.WriteHeader(http.StatusUnauthorized)
 			fmt.Fprintf(w, http.StatusText(http.StatusUnauthorized))
 			return

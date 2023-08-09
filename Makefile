@@ -15,3 +15,24 @@ release:
 test:
 	@echo 'todo'
 
+docker:
+	docker run -p 3000:3000 hopprotocol/webhook-server
+
+# Build docker target
+docker-build:
+	docker build -f Dockerfile -t hopprotocol/webhook-server .
+
+# Tag docker image
+docker-tag:
+	$(eval REV=$(shell git rev-parse HEAD | cut -c1-7))
+	docker tag hopprotocol/webhook-server:latest hopprotocol/webhook-server:latest
+	docker tag hopprotocol/webhook-server:latest hopprotocol/webhook-server:$(REV)
+
+# Push to registry
+docker-push:
+	$(eval REV=$(shell git rev-parse HEAD | cut -c1-7))
+	docker push hopprotocol/webhook-server:latest
+	docker push hopprotocol/webhook-server:$(REV)
+
+# Build docker image and push to registry
+docker-build-and-push: docker-build docker-tag docker-push
