@@ -2,7 +2,7 @@ package server
 
 import (
 	"crypto/hmac"
-	"crypto/sha1"
+	"crypto/sha256"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -66,19 +66,13 @@ func (s *Server) Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if s.secret != "" {
-		// headerSig := r.Header.Get("X-Hub-Signature")
-		// sig := hmacSig(s.secret, []byte(strings.TrimSpace(string(b))))
-		// expectedSig := fmt.Sprintf("sha1=%x", sig)
-		// if headerSig != expectedSig {
-		// 	w.WriteHeader(http.StatusUnauthorized)
-		// 	fmt.Fprintf(w, http.StatusText(http.StatusUnauthorized))
-		// 	return
-		// }
-		secret := r.Header.Get("X-Secret")
-		if secret != s.secret {
-			w.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprintf(w, http.StatusText(http.StatusUnauthorized))
-			return
+		headerSig := r.Header.Get("X-Hub-Signature-256")
+		sig := hmacSig(s.secret, []byte(strings.TrimSpace(string(b))))
+		expectedSig := fmt.Sprintf("sha256=%x", sig)
+		if headerSig != expectedSig {
+				w.WriteHeader(http.StatusUnauthorized)
+				fmt.Fprintf(w, http.StatusText(http.StatusUnauthorized))
+				return
 		}
 	}
 
@@ -95,7 +89,7 @@ func (s *Server) Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func hmacSig(secret string, message []byte) []byte {
-	hash := hmac.New(sha1.New, []byte(secret))
+	hash := hmac.New(sha256.New, []byte(secret))
 	hash.Write(message)
 
 	return hash.Sum(nil)
