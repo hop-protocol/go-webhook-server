@@ -67,9 +67,11 @@ func (s *Server) Handler(w http.ResponseWriter, r *http.Request) {
 
 	if s.secret != "" {
 		headerSig := r.Header.Get("X-Hub-Signature-256")
-		sig := hmacSig(s.secret, []byte(strings.TrimSpace(string(b))))
+		sig := hmacSig(s.secret, b)
 		expectedSig := fmt.Sprintf("sha256=%x", sig)
 		if headerSig != expectedSig {
+				fmt.Printf("headerSig: %s\n", headerSig)
+				fmt.Printf("expectedSig: %s\n", expectedSig)
 				w.WriteHeader(http.StatusUnauthorized)
 				fmt.Fprintf(w, http.StatusText(http.StatusUnauthorized))
 				return
