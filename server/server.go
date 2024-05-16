@@ -58,6 +58,8 @@ func (s *Server) Start() error {
 
 // Handler ...
 func (s *Server) Handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("Received %s request\n", s.method)
+	fmt.Printf("Path: %s\n", s.path)
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -65,6 +67,7 @@ func (s *Server) Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Printf("Path: %s\n", s.secret)
 	if s.secret != "" {
 		headerSig := r.Header.Get("X-Hub-Signature-256")
 		sig := hmacSig(s.secret, b)
